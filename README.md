@@ -1,66 +1,97 @@
 # AI Product Design
 
-AI Product Design is a reusable product-design skill for turning vague product ideas into complete, coherent, implementation-ready product solutions.
+AI Product Design is a product-thinking copilot. It helps product managers, designers, founders, and AI coding workflows improve an idea through a focused conversation before turning it into a deliverable.
 
-It is designed for product managers, designers, founders, and AI coding workflows where the user can describe intent in incomplete natural language and let the skill fill in standard product and UI details.
+It is not a one-shot product-spec generator. By default, it challenges the current proposal, identifies the next decision, and advances one design layer at a time. A full PRD, implementation prompt, final solution, or visual-direction prompt is created only when the user explicitly asks for one.
 
-## What it does
+## What it helps with
 
-AI Product Design helps with:
+- Clarifying the actual product problem behind a feature request
+- Separating known facts, assumptions, constraints, and unresolved decisions
+- Stress-testing product logic and existing page structures
+- Shaping information architecture, flows, interactions, and visual language in sequence
+- Giving 2–3 useful directions when a real trade-off remains
+- Converting agreed decisions into a PRD, implementation prompt, final proposal, or visual brief on request
 
-- Clarifying vague requirements
-- Turning intent into product logic
-- Defining information architecture
-- Establishing a consistent design foundation
-- Reusing standard SaaS interaction patterns
-- Designing pages, workflows, and states
-- Filling in routine UI details without repeatedly asking the user
-- Producing implementation-ready specifications for AI coding agents
-- Generating full PRDs when needed
-
-## Core philosophy
-
-The user should describe the product intent.
-
-The skill should own the product-design details.
-
-That means users should not need to manually define routine patterns such as:
-
-- how search works
-- how filters are structured
-- how forms validate
-- how tables behave
-- where loading and empty states appear
-- whether a drawer or modal is appropriate
-- how button hierarchy works
-
-The skill uses mature product conventions unless a business or technical constraint requires something different.
-
-## Design workflow
-
-AI Product Design follows this sequence:
+## Default workflow
 
 ```text
-Intent
-  ↓
-Product Logic
-  ↓
-Information Architecture
-  ↓
-Design System
-  ↓
-Component System
-  ↓
-Screen Design
-  ↓
-States & Edge Cases
-  ↓
-Acceptance Criteria
-  ↓
-Implementation Specification
+Current idea
+  -> Diagnose gaps and conflicts
+  -> Advance one decision layer
+  -> User feedback
+  -> Refine and advance
+  -> Explicit request for final artifact
+  -> PRD / prompt / final proposal / visual brief
 ```
 
-This prevents a common AI-product-design failure mode: designing isolated screens before defining the system that connects them.
+The normal sequence is:
+
+```text
+Problem definition
+  -> User and scenario
+  -> Information architecture
+  -> Core flow
+  -> Interaction details
+  -> Visual language
+```
+
+The skill does not mechanically interrogate the user. When the information for a layer is already available, it analyzes and advances instead of asking redundant questions.
+
+## Core behavior
+
+The skill first understands the user's current idea, goal, constraints, and any existing page or plan. It then calls out the gaps that actually matter: a vague user, a feature that does not solve the stated problem, a conflict with technical limits, an overloaded navigation model, or an unresolved ownership/state decision.
+
+Each response is deliberately narrow. It either delivers a phase-level analysis or presents up to three consequential options, then waits for the user to steer the next turn. It should be decisive when evidence supports a recommendation, and challenging when the proposal is weak—without inventing questions for the sake of asking them.
+
+Routine UI choices are inferred from mature patterns unless they change business logic, permissions, data, core workflow, irreversibility, technical feasibility, or major information architecture.
+
+## Final delivery is opt-in
+
+The skill switches to final-delivery mode only when the user clearly says something equivalent to:
+
+- “整理成 prompt”
+- “输出 PRD”
+- “给最终方案”
+- “生成视觉稿指令”
+- “可以直接做了”
+
+At that point, it summarizes the decisions and remaining assumptions, then produces the requested artifact. It does not assume that a detailed final answer is wanted merely because the topic is complex.
+
+## Example: a multi-turn refinement
+
+### Turn 1 — user
+
+> We want an AI search workspace. People can start a conversation, configure parameters, and see history. Keep the existing sidebar and top navigation.
+
+### Turn 1 — skill
+
+> The request bundles three different jobs: starting research, controlling answer quality, and returning to prior work. The unresolved product decision is whether parameters are a per-conversation setup or a global preference; that changes both history meaning and the main workspace layout.
+>
+> I recommend per-conversation settings: they preserve experiment context and make history useful. Before designing the layout, confirm one thing: are users comparing several search runs in one workspace, or is each conversation a single linear research thread?
+
+### Turn 2 — user
+
+> Mostly a single linear research thread, but users often try a different model after a poor answer.
+
+### Turn 2 — skill
+
+> Then do not make model choice a global setting. Treat it as a run-level control inside one conversation: the thread remains the container, while each answer records its model and relevant settings. This avoids fragmenting history every time someone retries.
+>
+> The next layer is information architecture. Two viable directions:
+>
+> 1. **Inline controls above the composer** — fastest for frequent model changes; less room for advanced settings.
+> 2. **Compact settings panel beside the conversation** — keeps the composer focused; stronger when settings include sources, depth, and output format.
+>
+> Choose inline controls if the only frequent decision is model. Choose the panel if users regularly tune more than two inputs.
+
+### Turn 3 — user
+
+> Use the compact panel. Settings are model, source scope, and answer depth. Now give me the final implementation prompt.
+
+### Turn 3 — skill
+
+> The user explicitly requests a final artifact, so the skill switches to final-delivery mode. It summarizes the agreed thread/run model and creates a self-contained implementation prompt rather than reopening the earlier decisions.
 
 ## Repository structure
 
@@ -72,187 +103,4 @@ AI-Product-Design/
     └── design-system.md
 ```
 
-### SKILL.md
-
-The main skill instructions.
-
-It defines:
-
-- clarification policy
-- decision hierarchy
-- product-design workflow
-- standard UI patterns
-- redesign rules
-- AI product rules
-- output modes
-- acceptance criteria
-- implementation prompt structure
-
-### references/design-system.md
-
-A reusable baseline design system for SaaS and AI products.
-
-It covers:
-
-- layout
-- spacing
-- typography
-- color roles
-- radius and elevation
-- buttons
-- forms
-- search
-- filters
-- tabs
-- tables
-- cards
-- modals
-- drawers
-- feedback
-- loading
-- empty states
-- errors
-- responsive behavior
-- interaction consistency
-
-The skill should prefer an existing product's design system when one exists. This reference acts as the default when no stronger system is available.
-
-## Example usage
-
-### Example 1 — vague requirement
-
-```text
-I need an AI Search workspace.
-
-Users should be able to start a new conversation, configure some parameters,
-and see their conversation history.
-
-The sidebar and top navigation should stay unchanged.
-```
-
-The skill should automatically determine:
-
-- page hierarchy
-- primary action
-- composer structure
-- parameter placement
-- history layout
-- loading states
-- empty states
-- error behavior
-- component reuse
-- implementation rules
-
-It should only ask follow-up questions if a missing answer materially changes business or technical logic.
-
-### Example 2 — redesign
-
-```text
-This creator list page feels messy.
-
-We support Instagram, TikTok, and YouTube, but the backend only supports
-single-platform filtering.
-
-Please redesign the content area but keep the global navigation unchanged.
-```
-
-The skill should diagnose the structural issue first, then define:
-
-- platform-selection behavior
-- search/filter hierarchy
-- table/list structure
-- information architecture
-- reusable components
-- state behavior
-- final implementation prompt
-
-## Output modes
-
-### Quick Design
-
-Best for small UI adjustments.
-
-Outputs:
-
-1. Problem Diagnosis
-2. Recommended Solution
-3. Key Interaction Changes
-4. Implementation Instructions
-
-### Product Design
-
-Default mode.
-
-Outputs:
-
-1. Product Intent
-2. Confirmed / Assumptions / Open Questions
-3. User Flow
-4. Information Architecture
-5. Design Foundation
-6. Component Strategy
-7. Screen Design
-8. States & Edge Cases
-9. Acceptance Criteria
-10. AI Implementation Prompt
-
-### Full PRD
-
-Best for larger features or when a formal PRD is needed.
-
-Includes:
-
-- background
-- goals
-- non-goals
-- users
-- scenarios
-- requirements
-- user flow
-- information architecture
-- functional specification
-- interaction specification
-- design system
-- states
-- edge cases
-- data requirements
-- technical constraints
-- acceptance criteria
-- implementation prompt
-
-## Recommended usage with AI coding agents
-
-This skill is especially useful before handing work to tools such as:
-
-- Codex
-- Claude Code
-- Cursor
-- Trae
-- other coding agents
-
-A good workflow is:
-
-```text
-Vague requirement
-→ AI Product Design
-→ Product Design / PRD
-→ Implementation Specification
-→ Coding Agent
-```
-
-The implementation specification should be explicit about:
-
-- what to preserve
-- what to modify
-- page hierarchy
-- reusable components
-- behavior
-- states
-- constraints
-- acceptance criteria
-
-## Key rule
-
-Do not start from pixels.
-
-Start from product intent and product logic, then build a consistent UI system around it.
+`SKILL.md` contains the collaboration model, stage rules, and explicit final-delivery triggers. `references/design-system.md` is consulted only when the conversation reaches visual language and no stronger existing system applies.
